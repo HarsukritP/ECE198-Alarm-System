@@ -1,0 +1,137 @@
+#include "main.h"
+
+
+
+// Define the buzzer pin
+
+#define BUZZER_PIN GPIO_PIN_0
+
+#define BUZZER_GPIO_PORT GPIOA
+
+
+
+// Define the motion sensor pin (adjust this pin to match your setup)
+
+#define MOTION_SENSOR_PIN GPIO_PIN_1
+
+#define MOTION_SENSOR_GPIO_PORT GPIOA
+
+
+
+// Function prototypes
+
+void SystemClock_Config(void);
+
+static void MX_GPIO_Init(void);
+
+
+
+int main(void)
+
+{
+
+  // Initialize the HAL Library
+
+  HAL_Init();
+
+
+
+  // Configure the system clock
+
+  SystemClock_Config();
+
+
+
+  // Initialize all configured peripherals (GPIO pins)
+
+  MX_GPIO_Init();
+
+
+
+  // Main loop
+
+  while (1)
+
+  {
+
+    // Read the motion sensor pin
+
+    GPIO_PinState motionState = HAL_GPIO_ReadPin(MOTION_SENSOR_GPIO_PORT, MOTION_SENSOR_PIN);
+
+
+
+    // If motion is detected (sensor reads HIGH), turn on the buzzer
+
+    if (motionState == GPIO_PIN_SET) {
+
+      HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_SET);  // Turn the buzzer on
+
+    } else {
+
+      HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);  // Turn the buzzer off
+
+    }
+
+
+
+    HAL_Delay(100);  // Delay to avoid rapid switching
+
+  }
+
+}
+
+
+
+void SystemClock_Config(void)
+
+{
+
+  // This function is auto-generated for configuring the system clock
+
+  // It sets up the clock settings for your STM32 chip
+
+}
+
+
+
+static void MX_GPIO_Init(void)
+
+{
+
+  // GPIO initialization structure
+
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+
+
+  // Enable clock for GPIOA (PA0 for buzzer, PA1 for motion sensor)
+
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+
+
+  // Configure PA0 as output for the buzzer
+
+  GPIO_InitStruct.Pin = BUZZER_PIN;
+
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;  // Push-pull output mode
+
+  GPIO_InitStruct.Pull = GPIO_NOPULL;          // No pull-up or pull-down resistors
+
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW; // Low speed (you can adjust if needed)
+
+  HAL_GPIO_Init(BUZZER_GPIO_PORT, &GPIO_InitStruct);
+
+
+
+  // Configure PA1 as input for the motion sensor with an internal pull-down resistor
+
+  GPIO_InitStruct.Pin = MOTION_SENSOR_PIN;
+
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;      // Set as input
+
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;        // Enable internal pull-down resistor
+
+  HAL_GPIO_Init(MOTION_SENSOR_GPIO_PORT, &GPIO_InitStruct);
+
+}
